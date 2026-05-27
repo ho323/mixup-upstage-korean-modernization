@@ -1,42 +1,109 @@
-# Mixup: Upstage 현대어 변환 프롬프톤
+# MixUP Upstage Korean Modernization
 
-한자, 고어, 한문, 영어 혼용문을 현대 한국어 기사체로 변환하는 프로젝트입니다.  
-Leaderboard Public Score: 0.8360  
-Final Score: 0.8140  
+A Korean text modernization pipeline using **Upstage Solar Pro2** and **multi-turn prompt engineering**.
 
-## 프로젝트 구조
+This project was developed for the **MixUP Upstage Promptathon**, where the goal was to convert text containing archaic Korean, Hanja, classical Chinese, and mixed-language expressions into modern Korean news-style sentences.
+
+---
+
+## Overview
+
+Modernizing historical or mixed-style Korean text requires more than simple translation.
+The system must preserve the original meaning while improving readability, fluency, and contemporary Korean expression.
+
+This repository implements a prompt-based generation pipeline that converts input sentences into modern Korean using a structured three-turn prompting strategy.
+
+The pipeline focuses on:
+
+* Meaning preservation
+* Natural modern Korean rewriting
+* News-style sentence formatting
+* Multi-turn self-verification
+* Batch generation for CSV-based submissions
+
+---
+
+## Competition Result
+
+| Metric                   |  Score |
+| ------------------------ | -----: |
+| Public Leaderboard Score | 0.8360 |
+| Final Score              | 0.8140 |
+
+---
+
+## Key Features
+
+* Solar Pro2-based Korean sentence modernization
+* Multi-turn prompt engineering strategy
+* CSV-based batch inference pipeline
+* Parallel generation with configurable worker count
+* Prompt configuration through `prompt.json`
+* Temperature and token control for each generation turn
+* Submission-ready CSV output generation
+
+---
+
+## Prompting Strategy
+
+The system uses a three-turn prompting process.
+
+### Turn 1: Meaning-preserving modernization
+
+The model first rewrites the original sentence into modern Korean while preserving the original meaning.
+
+### Turn 2: Fluency refinement
+
+The model improves naturalness, readability, and news-style expression.
+
+### Turn 3: Verification and correction
+
+The model compares the rewritten sentence with the original input and revises the output if meaning loss or distortion is detected.
+
+This structure was designed to reduce semantic drift while improving sentence quality.
+
+---
+
+## Repository Structure
 
 ```
 .
-├── generate.py          # 문장 생성 스크립트 (3턴 대화 방식)
-├── prompt.json          # 프롬프트 설정 (JSON 형식)
-├── prompts/             # 프롬프트 파일들 (Python)
-└── README.md
+├── generate.py          # Main batch generation script
+├── prompt.json          # Prompt configuration file
+├── prompts/             # Prompt templates or prompt-related modules
+├── README.md
+└── .gitignore
 ```
 
-## 설치
+---
 
-### 1. 의존성 설치
+## Installation
 
-```bash
+Install dependencies:
+
+```
 pip install pandas tqdm python-dotenv openai
 ```
 
-### 2. 환경 변수 설정
+---
 
-`.env` 파일을 생성하고 Upstage API 키를 설정하세요:
+## Environment Variables
 
-```bash
+Create a `.env` file and add your Upstage API key:
+
+```
 UPSTAGE_API_KEY=your_api_key_here
 ```
 
-## 사용법
+Do not commit API keys or environment files to GitHub.
 
-### 문장 생성
+---
 
-`generate.py`를 사용하여 CSV 파일의 문장들을 변환합니다:
+## Usage
 
-```bash
+Run batch generation:
+
+```
 python generate.py \
     --input data/test_dataset.csv \
     --output submission.csv \
@@ -48,35 +115,96 @@ python generate.py \
     --temp3 0.0
 ```
 
-#### 주요 옵션
+---
 
-- `--input`: 입력 CSV 파일 경로 (기본값: `data/test_dataset.csv`)
-- `--output`: 출력 CSV 파일 경로 (기본값: `submission.csv`)
-- `--model`: 사용할 모델명 (기본값: `solar-pro2`)
-- `--prompt`: 프롬프트 JSON 파일 경로 (기본값: `prompt.json`)
-- `--max_workers`: 병렬 처리 워커 수 (기본값: 3)
-- `--temp1`, `--temp2`, `--temp3`: 각 턴의 temperature 값
-- `--max_tokens1`, `--max_tokens2`, `--max_tokens3`: 각 턴의 max_tokens 값
+## Main Arguments
 
-#### 입력 CSV 형식
+| Argument        | Description                    |
+| --------------- | ------------------------------ |
+| `--input`       | Input CSV file path            |
+| `--output`      | Output CSV file path           |
+| `--model`       | Model name, e.g. `solar-pro2`  |
+| `--prompt`      | Prompt configuration JSON path |
+| `--max_workers` | Number of parallel workers     |
+| `--temp1`       | Temperature for turn 1         |
+| `--temp2`       | Temperature for turn 2         |
+| `--temp3`       | Temperature for turn 3         |
+| `--max_tokens1` | Maximum tokens for turn 1      |
+| `--max_tokens2` | Maximum tokens for turn 2      |
+| `--max_tokens3` | Maximum tokens for turn 3      |
 
-CSV 파일은 다음 컬럼을 포함해야 합니다:
-- `id`: 고유 식별자
-- `original_sentence`: 변환할 원문 문장
+---
 
-#### 출력 CSV 형식
+## Input Format
 
-생성된 CSV 파일은 다음 컬럼을 포함합니다:
-- `id`: 고유 식별자
-- `original_sentence`: 원문 문장
-- `answer_sentence`: 변환된 문장
+The input CSV file should contain the following columns:
 
-## 프롬프트 설정
+| Column              | Description                      |
+| ------------------- | -------------------------------- |
+| `id`                | Unique sample ID                 |
+| `original_sentence` | Source sentence to be modernized |
 
-프롬프트는 `prompt.json` 파일에서 관리됩니다.   
+Example:
 
-### 3턴 대화 방식
+```
+id,original_sentence
+0,此는 옛 문헌에 기록된 문장이라...
+```
 
-1. **1턴**: 의미 보존 중심 변환
-2. **2턴**: 자연스러움 개선 + 의미 보존
-3. **3턴**: 원문과 비교하여 내용 보존 검증 및 보강
+---
+
+## Output Format
+
+The generated CSV file contains:
+
+| Column              | Description                |
+| ------------------- | -------------------------- |
+| `id`                | Unique sample ID           |
+| `original_sentence` | Original input sentence    |
+| `answer_sentence`   | Modernized Korean sentence |
+
+---
+
+## Project Relevance
+
+This project is related to:
+
+* Prompt Engineering
+* Large Language Models
+* Korean NLP
+* Text Modernization
+* Batch Inference
+* Multi-turn Generation
+* LLM-based Text Transformation
+* Upstage Solar Pro2
+
+---
+
+## Limitations
+
+* This repository is a competition-oriented prompt engineering project.
+* The system depends on the behavior and availability of the Solar Pro2 API.
+* Outputs may vary depending on prompt design, temperature, token limits, and model updates.
+* Additional human evaluation may be required for sensitive historical or legal text.
+* This project does not train a language model; it focuses on prompt design and generation workflow.
+
+---
+
+## Future Work
+
+* Add example input and output files
+* Add automatic evaluation scripts
+* Add prompt version comparison
+* Add error analysis for semantic drift
+* Add retry logic for API failures
+* Add cost and latency tracking
+* Refactor prompt templates into modular files
+* Add a lightweight web interface for sentence modernization
+
+---
+
+## Author
+
+**Hoseong Kim**
+ML Engineer
+GitHub: https://github.com/ho323
