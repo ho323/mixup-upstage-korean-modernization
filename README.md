@@ -187,16 +187,3 @@ This project is related to:
 * Outputs may vary depending on prompt design, temperature, token limits, and model updates.
 * Additional human evaluation may be required for sensitive historical or legal text.
 * This project does not train a language model; it focuses on prompt design and generation workflow.
-
----
-
-## Future Work
-
-* Add example input and output files
-* Add automatic evaluation scripts
-* Add prompt version comparison
-* Add error analysis for semantic drift
-* Add retry logic for API failures
-* Add cost and latency tracking
-* Refactor prompt templates into modular files
-* Add a lightweight web interface for sentence modernization
