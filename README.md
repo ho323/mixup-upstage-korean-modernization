@@ -200,11 +200,3 @@ This project is related to:
 * Add cost and latency tracking
 * Refactor prompt templates into modular files
 * Add a lightweight web interface for sentence modernization
-
----
-
-## Author
-
-**Hoseong Kim**
-ML Engineer
-GitHub: https://github.com/ho323
